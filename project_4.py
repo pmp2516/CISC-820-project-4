@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import numpy as np
+from data_import import read_mnist
 
 def pca(x, method='eigen'):
     # x is `num_samples` by `num_features`
@@ -30,33 +31,6 @@ def linear_least_squares(x, labels):
     w = y.T @ x @ np.linalg.inv(x_squared)
     return w
 
-def read_mnist():
-    """
-    Reads MNIST handwritten digit training data and labels.
-
-    Returns:
-        image: A 2D NumPy array of shape (28*28, 60000), each column represents an image.
-        label: A 1D NumPy array of length 60000, each element represents a label.
-    """
-    with open('train-images-idx3-ubyte', 'rb') as fid, open('train-labels-idx1-ubyte', 'rb') as fid2:
-        # Read headers (first 4 bytes for magic number, next 4 for dimensions)
-        mn = np.frombuffer(fid.read(4), dtype=np.uint8)
-        ni = np.frombuffer(fid.read(4), dtype=np.uint8)
-        nr = np.frombuffer(fid.read(4), dtype=np.uint8)
-        nc = np.frombuffer(fid.read(4), dtype=np.uint8)
-        
-        mn2 = np.frombuffer(fid2.read(4), dtype=np.uint8)
-        ni2 = np.frombuffer(fid2.read(4), dtype=np.uint8)
-
-        # Read labels (60000 bytes)
-        label = np.frombuffer(fid2.read(60000), dtype=np.uint8)
-        
-        # Read images (60000 images, each 28*28 bytes)
-        image = np.zeros((60000, 28 * 28), dtype=np.uint8)
-        for i in range(60000):
-            image[i, :] = np.frombuffer(fid.read(28 * 28), dtype=np.uint8)
-        
-    return image, label
 
 def softmax(x):
     e_x = np.exp(x - np.max(x))
