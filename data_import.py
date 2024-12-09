@@ -2,6 +2,8 @@
 import cv2
 import os
 import numpy as np
+from sklearn import preprocessing
+
 
 def preprocess_dataset(path='att_dataset'):
     path = 'att_dataset'
@@ -18,7 +20,8 @@ def preprocess_dataset(path='att_dataset'):
 
     images = np.array(images)
     user_ids = np.array(user_ids)
-
+    le = preprocessing.LabelEncoder()
+    user_ids = le.fit_transform(user_ids)
     return images, user_ids
 
 def read_mnist():
