@@ -49,6 +49,9 @@ def read_mnist():
         
     return image, label
 
+def read_dataset(images_file, labels_file):
+    return np.load(images_file), np.load(labels_file)
+
 if __name__ == '__main__':
     images, user_ids = preprocess_dataset()
     np.save('image_data.npy', images)
