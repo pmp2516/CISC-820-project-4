@@ -7,5 +7,5 @@ def softmax(x):
     return e_x / e_x.sum(axis=0)
 
 def linear_inference(x, w):
-    return w @ x
+    return x @ w.T
 
