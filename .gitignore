@@ -165,3 +165,7 @@ cython_debug/
 att_dataset/
 user_ids.npy
 image_data.npy
+
+# Caches
+pcs.npy
+
