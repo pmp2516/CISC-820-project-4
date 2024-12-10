@@ -22,6 +22,7 @@ def preprocess_dataset(path='att_dataset'):
     user_ids = np.array(user_ids)
     le = preprocessing.LabelEncoder()
     user_ids = le.fit_transform(user_ids)
+
     return images, user_ids
 
 def read_mnist():
@@ -51,6 +52,9 @@ def read_mnist():
             image[i, :] = np.frombuffer(fid.read(28 * 28), dtype=np.uint8)
         
     return image, label
+
+def read_dataset(images_file, labels_file):
+    return np.load(images_file), np.load(labels_file)
 
 if __name__ == '__main__':
     images, user_ids = preprocess_dataset()
