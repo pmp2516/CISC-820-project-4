@@ -29,14 +29,15 @@ def get_pcs(images, path='./pcs.npy', force=False):
 
 def eval_pcs(images, pcs, labels):
     accuracies = []
-    for k in range(1, 100):
+    for k in range(10, 1000, 10):
         p = pcs[:, :k]
         images_pcs = images @ p # To PC basis
         w = linear_least_squares(images_pcs, labels)
         if w is None:
             continue
         # print(f'w: {w.shape}, p: {p.shape}, images_pcs: {images_pcs.shape}, images: {images.shape}')
-        predicted = np.argmax(linear_inference(images_pcs, w), axis=1)
+        output = linear_inference(images_pcs, w)
+        predicted = np.argmax(output, axis=1)
         accuracy = np.mean(predicted == labels)
         print(f'k: {k:50} accuracy: {accuracy:10}')
         accuracies.append(accuracy)

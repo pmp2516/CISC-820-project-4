@@ -7,7 +7,7 @@ def linear_least_squares(x, labels):
     # x: (num_samples, num_features) y: (num_samples, num_classes)
     x_squared = x.T @ x
     try:
-        w = y.T @ x @ np.linalg.inv(x_squared)
+        w = y.T @ x @ np.linalg.pinv(x_squared)
     except np.linalg.LinAlgError:
         return None
     return w
