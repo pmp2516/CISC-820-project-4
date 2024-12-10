@@ -8,7 +8,7 @@ def pca(x, method='eigen'):
     num_points = x.shape[1]
     if method == 'eigen':
         eig, p = np.linalg.eigh( (x_centered.T @ x_centered) / (num_points-1) )
-        indices = np.argsort(eig)
+        indices = np.argsort(eig)[::-1]
         cov = np.diag(eig[indices])
         p = p[indices]
     elif method == 'svd':
