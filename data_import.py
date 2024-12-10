@@ -4,6 +4,7 @@ import os
 import numpy as np
 from sklearn import preprocessing
 
+
 def preprocess_dataset(path='att_dataset'):
     path = 'att_dataset'
     images = []
