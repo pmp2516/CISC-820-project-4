@@ -7,23 +7,37 @@ from sklearn import preprocessing
 
 def preprocess_dataset(path='att_dataset'):
     path = 'att_dataset'
-    images = []
-    user_ids = []
+    train_images = []
+    test_images = []
+    train_user_ids = []
+    test_user_ids = []
+
+    user_num = -1
     for subfolder in os.listdir(path):
         subfolder_path = os.path.join(path, subfolder)
         if os.path.isdir(subfolder_path):
+            user_num += 1
+            i = 0
             for file in os.listdir(subfolder_path):
                 file_path = os.path.join(subfolder_path, file)
-                image = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
-                images.append(image.flatten())
-                user_ids.append(subfolder)
+                if i <= 7 and user_num <= 34:
+                    train_image = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
+                    train_images.append(train_image.flatten())
+                    train_user_ids.append(user_num)
+                else:
+                    test_image = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
+                    test_images.append(test_image.flatten())
+                    test_user_ids.append(user_num)
+                i += 1
 
-    images = np.array(images)
-    user_ids = np.array(user_ids)
-    le = preprocessing.LabelEncoder()
-    user_ids = le.fit_transform(user_ids)
+    train_images = np.array(train_images)
+    test_images = np.array(test_images)
+    train_user_ids = np.array(train_user_ids)
+    test_user_ids = np.array(test_user_ids)
+    # le = preprocessing.LabelEncoder()
+    # user_ids = le.fit_transform(user_ids)
 
-    return images, user_ids
+    return train_images, test_images, train_user_ids, test_user_ids
 
 def read_mnist():
     """
