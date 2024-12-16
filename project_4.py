@@ -12,7 +12,9 @@ import cv2 as cv
 def main():
     images, labels = read_dataset('./image_data.npy', './user_ids.npy')
     pcs = get_pcs(images)
-    visualize_reconstructions(images, pcs)
+    images = images @ pcs[:, :50]
+    images = polynomial_basis_expansion(images, k=3, interactions=True)
+    print(images.shape)
 
 def save_pcs(images, path):
     p, cov = pca(images)
@@ -70,7 +72,6 @@ def visualize_reconstructions(images, pcs):
         plt.tight_layout()
         plt.show(block=True)
 
-    
 
 if __name__ == '__main__':
     main()
