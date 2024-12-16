@@ -12,9 +12,7 @@ import cv2 as cv
 def main():
     images, labels = read_dataset('./image_data.npy', './user_ids.npy')
     pcs = get_pcs(images)
-    images = images @ pcs[:, :50]
-    images = polynomial_basis_expansion(images, k=3, interactions=True)
-    print(images.shape)
+    eval_pcs(images, pcs, labels)
 
 def save_pcs(images, path):
     p, cov = pca(images)
@@ -31,14 +29,14 @@ def get_pcs(images, path='./pcs.npy', force=False):
 def eval_pcs(images, pcs, labels):
     accuracies = []
     for k in range(10, 1000, 10):
-        k = 1
         p = pcs[:, :k]
         images_pcs = images @ p # To PC basis
-        w = linear_least_squares(images_pcs, labels)
+        images_expanded = polynomial_basis_expansion(images_pcs, k=5, interactions=False)
+        w = linear_least_squares(images_expanded, labels)
         if w is None:
             continue
-        print(f'w: {w.shape}, p: {p.shape}, images_pcs: {images_pcs.shape}, images: {images.shape}')
-        output = linear_inference(images_pcs, w)
+        # print(f'w: {w.shape}, p: {p.shape}, images_pcs: {images_pcs.shape}, images: {images.shape}')
+        output = linear_inference(images_expanded, w)
         predicted = np.argmax(output, axis=1)
         accuracy = np.mean(predicted == labels)
         print(f'k: {k:50} accuracy: {accuracy:10}')

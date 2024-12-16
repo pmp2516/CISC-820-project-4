@@ -19,7 +19,7 @@ def pca(x, method='eigen'):
         raise ValueError(f"Unknown method provided: {method}.\nSupported methods are 'eigen' and 'svd'.")
     return p, cov
 
-def polynomial_basis_expansion(x, k=0, interactions=True):
+def polynomial_basis_expansion(x, k=0, interactions=False):
     if k < 0:
         raise ValueError(f"Invalid order: {k}.\nThe polynomial order `k` must be non-negative.")
     num_points, num_features = x.shape
@@ -31,6 +31,7 @@ def polynomial_basis_expansion(x, k=0, interactions=True):
         else:
             for feature_idx in range(num_features):
                 expanded_features.append(x[:, feature_idx:feature_idx+1]**degree)
-    expanded_features.append(x)
+    if k > 0:
+        expanded_features.append(x)
     return np.hstack(expanded_features)
 
