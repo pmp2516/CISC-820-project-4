@@ -9,6 +9,8 @@ from regression import linear_least_squares
 from inference import linear_inference, softmax
 import cv2 as cv
 
+HEIGHT = 112
+WIDTH = 92
 
 def main():
     train_images, train_labels = read_dataset('./train_images.npy', './train_labels.npy')
@@ -35,7 +37,6 @@ def get_pcs(images, path='./pcs.npy', force=False):
     else:
         pcs = np.load(path)
     return pcs
-
 
 def get_weights(images, pcs, labels):
     ws = []
@@ -84,22 +85,20 @@ def project_and_reconstruct(images, pcs, k):
     images_reconstructed = images_pcs @ p.T
     return images_reconstructed
 
-
-def visualize_reconstructions(images, pcs):
-    num_reconstructions = 25
-    height, width = 112, 92
-    images_reconstructed_all = np.zeros((400, num_reconstructions + 1, height * width))
+def visualize_reconstructions(images, pcs, k_vals = None):
+    if k_vals is None:
+        k_vals = np.linspace(1, HEIGHT * WIDTH, num=25, dtype=int)
+    num_reconstructions = len(k_vals)
+    images_reconstructed_all = np.zeros((400, num_reconstructions + 1, HEIGHT * WIDTH))
     images_reconstructed_all[:, 0] = images
-    # k_vals = np.linspace(10304, 0, num=num_reconstructions, dtype=int)
-    k_vals = np.logspace(0, np.log10(height * width), num=num_reconstructions, dtype=int)
     for i, k in enumerate(k_vals):
         images_reconstructed_all[:, i + 1] = project_and_reconstruct(images, pcs, k)
 
     for image_and_reconstructions in images_reconstructed_all:
         fig, axes = plt.subplots(1, num_reconstructions + 1, figsize=(20, 5))
         for j, ax in enumerate(axes):
-            ax.imshow(image_and_reconstructions[j].reshape(height, width), cmap='gray')
-            ax.set_title('original' if j == 0 else f"k={k_vals[j - 1]}")
+            ax.imshow(image_and_reconstructions[j].reshape(HEIGHT, WIDTH), cmap='gray')
+            ax.set_title('original' if j == 0 else f"k={k_vals[j-1]}")\
             ax.axis('off')
         plt.tight_layout()
         plt.show(block=True)
