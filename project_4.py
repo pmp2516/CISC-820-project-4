@@ -3,7 +3,7 @@
 import os
 import numpy as np
 from matplotlib import pyplot as plt
-from data_import import read_dataset, preprocess_dataset
+from data_import import read_dataset, preprocess_dataset, binary_face_dataset
 from basis import pca, polynomial_basis_expansion
 from regression import linear_least_squares
 from inference import linear_inference, softmax
@@ -13,11 +13,15 @@ import cv2 as cv
 def main():
     train_images, train_labels = read_dataset('./train_images.npy', './train_labels.npy')
     test_images, test_labels = read_dataset('./test_images.npy', './test_labels.npy')
-    all_images = np.concatenate((train_images, test_images), axis=0)
+    bin_train_images, bin_train_labels = read_dataset('./binary_train_images.npy', './binary_train_labels.npy')
+    bin_test_images, bin_test_labels = read_dataset('./binary_test_images.npy', './binary_test_labels.npy')
+
+    all_images = np.concatenate((bin_train_images, bin_test_images), axis=0)
     pcs = get_pcs(all_images)
     # visualize_reconstructions(all_images, pcs)
-    w, k = get_weights(train_images, pcs, train_labels)
-    eval(w, k, pcs, test_images, test_labels)
+    w, k = get_weights(bin_train_images, pcs, bin_train_labels)
+    # # print(w[35:])
+    eval(w, k, pcs, bin_test_images, bin_test_labels)
 
 
 def save_pcs(images, path):
@@ -45,7 +49,10 @@ def get_weights(images, pcs, labels):
         if w is None:
             continue
         output = linear_inference(images_pcs, w)
-        predicted = np.argmax(output, axis=1)
+        if np.unique(labels).size > 2:
+            predicted = np.argmax(output, axis=1)
+        else:
+            predicted = (output >= 0.5).astype(int)
         accuracy = np.mean(predicted == labels)
         accuracies.append(accuracy)
         ws.append(w)
@@ -61,7 +68,11 @@ def eval(w, k, pcs, images, labels):
     images_pcs = images @ p  # To PC basis
     print(f'w: {w.shape}, p: {p.shape}, images_pcs: {images_pcs.shape}, images: {images.shape}')
     output = linear_inference(images_pcs, w)
-    predicted = np.argmax(output, axis=1)
+    if np.unique(labels).size > 2:
+        predicted = np.argmax(output, axis=1)
+    else:
+        predicted = (output >= 0.5).astype(int)
+
     accuracy = np.mean(predicted == labels)
     print(f'k: {k:50} accuracy: {accuracy:10}')
 
