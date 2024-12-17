@@ -15,15 +15,16 @@ WIDTH = 92
 def main():
     train_images, train_labels = read_dataset('./train_images.npy', './train_labels.npy')
     test_images, test_labels = read_dataset('./test_images.npy', './test_labels.npy')
-    bin_train_images, bin_train_labels = read_dataset('./binary_train_images.npy', './binary_train_labels.npy')
-    bin_test_images, bin_test_labels = read_dataset('./binary_test_images.npy', './binary_test_labels.npy')
+    # bin_train_images, bin_train_labels = read_dataset('./binary_train_images.npy', './binary_train_labels.npy')
+    # bin_test_images, bin_test_labels = read_dataset('./binary_test_images.npy', './binary_test_labels.npy')
 
-    all_images = np.concatenate((bin_train_images, bin_test_images), axis=0)
-    pcs = get_pcs(all_images)
-    # visualize_reconstructions(all_images, pcs)
-    w, k = get_weights(bin_train_images, pcs, bin_train_labels)
+    all_images = np.concatenate((train_images, test_images), axis=0)
+    pcs = get_pcs(all_images, force=False)
+    # visualize_reconstructions(all_images[:3, :], pcs, k_vals=np.linspace(1, 500, num=5, dtype=int))
+    visualize_pcs(pcs, k_vals=np.linspace(50, 300, num=10, dtype=int))
+    # w, k = get_weights(bin_train_images, pcs, bin_train_labels)
     # # print(w[35:])
-    eval(w, k, pcs, bin_test_images, bin_test_labels)
+    # eval(w, k, pcs, bin_test_images, bin_test_labels)
 
 def save_pcs(images, path):
     p, cov = pca(images)
@@ -89,19 +90,32 @@ def visualize_reconstructions(images, pcs, k_vals = None):
     if k_vals is None:
         k_vals = np.linspace(1, HEIGHT * WIDTH, num=25, dtype=int)
     num_reconstructions = len(k_vals)
-    images_reconstructed_all = np.zeros((400, num_reconstructions + 1, HEIGHT * WIDTH))
+    images_reconstructed_all = np.zeros((len(images), num_reconstructions + 1, HEIGHT * WIDTH))
     images_reconstructed_all[:, 0] = images
     for i, k in enumerate(k_vals):
         images_reconstructed_all[:, i + 1] = project_and_reconstruct(images, pcs, k)
 
-    for image_and_reconstructions in images_reconstructed_all:
-        fig, axes = plt.subplots(1, num_reconstructions + 1, figsize=(20, 5))
-        for j, ax in enumerate(axes):
-            ax.imshow(image_and_reconstructions[j].reshape(HEIGHT, WIDTH), cmap='gray')
-            ax.set_title('original' if j == 0 else f"k={k_vals[j-1]}")
+    fig, axes = plt.subplots(len(images), num_reconstructions + 1, figsize=(20, 5))
+    for row in range(len(images)):
+        for col in range(num_reconstructions + 1):
+            ax = axes[row, col]
+            ax.imshow(images_reconstructed_all[row, col].reshape(HEIGHT, WIDTH), cmap='gray')
+            ax.set_title('original' if col == 0 else f"k={k_vals[col-1]}")
             ax.axis('off')
-        plt.tight_layout()
-        plt.show(block=True)
+    plt.tight_layout()
+    plt.show(block=True)
+
+def visualize_pcs(pcs, k_vals = None):
+    if k_vals is None:
+        k_vals = np.linspace(1, 50, num=25, dtype=int)
+    fig, axes = plt.subplots(1, len(k_vals), figsize=(20,5))
+    for ax, k in zip(axes, k_vals):
+        ax.imshow(np.array(pcs[:, k]).reshape(HEIGHT, WIDTH), cmap='gray')
+        ax.set_title(k)
+        ax.axis('off')
+    plt.tight_layout()
+    plt.show(block=True)
+
 
 
 if __name__ == '__main__':

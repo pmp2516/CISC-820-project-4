@@ -35,7 +35,10 @@ def preprocess_dataset(path='att_dataset'):
     train_user_ids = np.array(train_user_ids)
     test_user_ids = np.array(test_user_ids)
 
-    return train_images, test_images, train_user_ids, test_user_ids
+    np.save('train_images.npy', train_images)
+    np.save('train_labels.npy', train_user_ids)
+    np.save('test_images.npy', test_images)
+    np.save('test_labels.npy', test_user_ids)
 
 def binary_face_dataset():
     non_faces = []
@@ -103,6 +106,4 @@ def read_dataset(images_file, labels_file):
     return np.load(images_file), np.load(labels_file)
 
 if __name__ == '__main__':
-    images, user_ids = preprocess_dataset()
-    np.save('image_data.npy', images)
-    np.save('user_ids.npy', user_ids)
+    preprocess_dataset()
