@@ -3,27 +3,72 @@ import cv2
 import os
 import numpy as np
 from sklearn import preprocessing
-
+from datasets import load_dataset
 
 def preprocess_dataset(path='att_dataset'):
     path = 'att_dataset'
-    images = []
-    user_ids = []
+    train_images = []
+    test_images = []
+    train_user_ids = []
+    test_user_ids = []
+
+    user_num = -1
     for subfolder in os.listdir(path):
         subfolder_path = os.path.join(path, subfolder)
         if os.path.isdir(subfolder_path):
+            user_num += 1
+            i = 0
             for file in os.listdir(subfolder_path):
                 file_path = os.path.join(subfolder_path, file)
-                image = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
-                images.append(image.flatten())
-                user_ids.append(subfolder)
+                if i <= 7 and user_num <= 34:
+                    train_image = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
+                    train_images.append(train_image.flatten())
+                    train_user_ids.append(user_num)
+                else:
+                    test_image = cv2.imread(file_path, cv2.IMREAD_GRAYSCALE)
+                    test_images.append(test_image.flatten())
+                    test_user_ids.append(user_num)
+                i += 1
 
-    images = np.array(images)
-    user_ids = np.array(user_ids)
-    le = preprocessing.LabelEncoder()
-    user_ids = le.fit_transform(user_ids)
+    train_images = np.array(train_images)
+    test_images = np.array(test_images)
+    train_user_ids = np.array(train_user_ids)
+    test_user_ids = np.array(test_user_ids)
 
-    return images, user_ids
+    return train_images, test_images, train_user_ids, test_user_ids
+def binary_face_dataset():
+    non_faces = []
+    ds = load_dataset("TencentARC/Plot2Code", split="test")
+
+    test_indices = np.random.choice(len(ds), size=120, replace=False)
+    all_indices = np.arange(len(ds))
+    train_indices = np.setdiff1d(all_indices, test_indices)
+
+    for idx in all_indices:
+        idx = int(idx)
+        image = ds[idx]['image']
+        image_np = np.array(image.convert('L')) # makes grayscale
+        resized_image = cv2.resize(image_np, (92, 112))
+        non_faces.append(resized_image.flatten())
+
+    non_faces_array = np.array(non_faces)
+
+    non_faces_train = non_faces_array[train_indices]
+    non_faces_test = non_faces_array[test_indices]
+
+    faces_train = np.load('train_images.npy')
+    faces_test = np.load('test_images.npy')
+
+    binary_train_data = np.concatenate((faces_train, non_faces_train))
+    binary_test_data = np.concatenate((faces_test, non_faces_test))
+
+    binary_train_labels = np.concatenate((np.ones(len(faces_train)), np.zeros(len(non_faces_train))))
+    binary_test_labels = np.concatenate((np.ones(len(faces_test)), np.zeros(len(non_faces_test))))
+
+    np.save('binary_train_images.npy', binary_train_data)
+    np.save('binary_train_labels.npy', binary_train_labels)
+    np.save('binary_test_images.npy', binary_test_data)
+    np.save('binary_test_labels.npy', binary_test_labels)
 
 def read_mnist():
     """
