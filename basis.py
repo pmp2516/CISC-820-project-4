@@ -9,12 +9,12 @@ from regression import linear_least_squares
 def pca(x, method='eigen'):
     # x is `num_points` by `num_features`
     x_centered = x - np.mean(x, axis=0)
-    num_points = x.shape[1]
+    num_points = x.shape[0]
     if method == 'eigen':
         eig, p = np.linalg.eigh( (x_centered.T @ x_centered) / (num_points-1) )
         indices = np.argsort(eig)[::-1]
         cov = np.diag(eig[indices])
-        p = p[indices]
+        p = p[:, indices]
     elif method == 'svd':
         u, s, _ = np.linalg.svd( (x_centered.T @ x_centered) / np.sqrt(num_points-1) )
         p = u
