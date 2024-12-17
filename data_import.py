@@ -36,6 +36,7 @@ def preprocess_dataset(path='att_dataset'):
     test_user_ids = np.array(test_user_ids)
 
     return train_images, test_images, train_user_ids, test_user_ids
+
 def binary_face_dataset():
     non_faces = []
     ds = load_dataset("TencentARC/Plot2Code", split="test")
