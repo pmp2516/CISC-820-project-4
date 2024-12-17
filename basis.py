@@ -2,6 +2,10 @@
 import numpy as np
 from itertools import combinations_with_replacement
 
+from inference import linear_inference
+from regression import linear_least_squares
+
+
 def pca(x, method='eigen'):
     # x is `num_points` by `num_features`
     x_centered = x - np.mean(x, axis=0)
@@ -34,4 +38,3 @@ def polynomial_basis_expansion(x, k=0, interactions=False):
     if k > 0:
         expanded_features.append(x)
     return np.hstack(expanded_features)
-
