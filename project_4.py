@@ -98,7 +98,7 @@ def visualize_reconstructions(images, pcs, k_vals = None):
         fig, axes = plt.subplots(1, num_reconstructions + 1, figsize=(20, 5))
         for j, ax in enumerate(axes):
             ax.imshow(image_and_reconstructions[j].reshape(HEIGHT, WIDTH), cmap='gray')
-            ax.set_title('original' if j == 0 else f"k={k_vals[j-1]}")\
+            ax.set_title('original' if j == 0 else f"k={k_vals[j-1]}")
             ax.axis('off')
         plt.tight_layout()
         plt.show(block=True)
