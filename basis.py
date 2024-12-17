@@ -23,16 +23,18 @@ def pca(x, method='eigen'):
         raise ValueError(f"Unknown method provided: {method}.\nSupported methods are 'eigen' and 'svd'.")
     return p, cov
 
-def polynomial_basis_expansion(x, k=0, interactions=True):
+def polynomial_basis_expansion(x, k=0, interactions=False):
     if k < 0:
         raise ValueError(f"Invalid order: {k}.\nThe polynomial order `k` must be non-negative.")
     num_points, num_features = x.shape
-    expanded_features = [np.ones(num_points)] if k >= 0 else []
-    for degree in range(1, k + 1):
+    expanded_features = [np.ones((num_points, 1))] # order 0 biases
+    for degree in range(2, k + 1):
         if interactions:
             for term in combinations_with_replacement(range(num_features), degree):
-                expanded_features.append(np.prod(x[:, term], axis=1))
+                expanded_features.append(np.prod(x[:, term], axis=1, keepdims=True))
         else:
             for feature_idx in range(num_features):
-                expanded_features.append(x[:, feature_idx]**degree)
-    return np.column_stack(expanded_features)
+                expanded_features.append(x[:, feature_idx:feature_idx+1]**degree)
+    if k > 0:
+        expanded_features.append(x)
+    return np.hstack(expanded_features)

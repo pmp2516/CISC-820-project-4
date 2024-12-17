@@ -23,7 +23,6 @@ def main():
     # # print(w[35:])
     eval(w, k, pcs, bin_test_images, bin_test_labels)
 
-
 def save_pcs(images, path):
     p, cov = pca(images)
     np.save(path, p)
@@ -44,11 +43,13 @@ def get_weights(images, pcs, labels):
     accuracies = []
     for k in range(10, 1000, 10):
         p = pcs[:, :k]
-        images_pcs = images @ p  # To PC basis
-        w = linear_least_squares(images_pcs, labels)
+        images_pcs = images @ p # To PC basis
+        images_expanded = polynomial_basis_expansion(images_pcs, k=5, interactions=False)
+        w = linear_least_squares(images_expanded, labels)
         if w is None:
             continue
-        output = linear_inference(images_pcs, w)
+        # print(f'w: {w.shape}, p: {p.shape}, images_pcs: {images_pcs.shape}, images: {images.shape}')
+        output = linear_inference(images_expanded, w)
         if np.unique(labels).size > 2:
             predicted = np.argmax(output, axis=1)
         else:
