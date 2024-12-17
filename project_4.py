@@ -13,7 +13,6 @@ import cv2 as cv
 def main():
     train_images, train_labels = read_dataset('./train_images.npy', './train_labels.npy')
     test_images, test_labels = read_dataset('./test_images.npy', './test_labels.npy')
-    binary_face_dataset()
     bin_train_images, bin_train_labels = read_dataset('./binary_train_images.npy', './binary_train_labels.npy')
     bin_test_images, bin_test_labels = read_dataset('./binary_test_images.npy', './binary_test_labels.npy')
 
